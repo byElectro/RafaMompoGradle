@@ -1,9 +1,6 @@
 package com.rafamompo.tema4gradle;
 
-import dev.langchain4j.data.message.AiMessage;
-import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.data.message.SystemMessage;
-import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 
 import java.util.ArrayList;
@@ -14,37 +11,42 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) {
 
-        final String TOKEN = "";
-
+        // Configuración de los modelos IA
         var modeloIA1 = OpenAiChatModel.builder()
                 .baseUrl("http://localhost:11434/v1")
-                .apiKey(TOKEN)
                 .modelName("llama3.1:8b")
                 .build();
 
         var modeloIA2 = OpenAiChatModel.builder()
                 .baseUrl("http://localhost:11434/v1")
-                .apiKey(TOKEN)
                 .modelName("llama3.1:8b")
                 .build();
 
-        //Ejemplo de historial:
-        List<ChatMessage> historialIA1 = new ArrayList<>();
-        historialIA1.add(new UserMessage("Eres un comentarista profesional de videojuegos."));
-        AiMessage mensajeIA1 = modeloIA1.chat(historialIA1).aiMessage();
-        String pregunta = mensajeIA1.text();
+        // ----------------------------
+        // Interacción IA1 → IA2 → IA1
+        // ----------------------------
 
-        // El modeloloIA2 recibe la pregunta formulada por el
-        // modeloIA1, generando una respuesta y la segunda IA extrae el texto generado por el modeloIA2
-        String respuestaIA2 = modeloIA2.chat(List.of(new UserMessage(pregunta))).aiMessage().text();
+        // Inicializamos la "personalidad" de la IA1
+        List<SystemMessage> historialIA1 = new ArrayList<>();
+        historialIA1.add(new SystemMessage("Eres un comentarista profesional de videojuegos."));
 
-        //Interaccion entre IAS:
-        List<ChatMessage> historialIA2 = new ArrayList<>();
-        historialIA1.add(new SystemMessage("Eres un experto en física cuántica."));
+        // Primera pregunta de IA1
+        String pregunta1 = modeloIA1.chat("Hola, soy Rafa. Cuéntame un consejo sobre shooters online.");
+        // IA2 responde a IA1
+        String respuesta1IA2 = modeloIA2.chat("Pregunta de IA1: " + pregunta1);
+        // IA1 responde a IA2 (segunda interacción)
+        String respuesta2IA1 = modeloIA1.chat("Respuesta de IA2: " + respuesta1IA2 + " Dame tu opinión.");
+        // IA2 responde de nuevo a IA1 (segunda interacción)
+        String respuesta2IA2 = modeloIA2.chat("Comentario de IA1: " + respuesta2IA1 + " ¿Qué piensas ahora?");
 
-        System.out.println("IA1 pregunta: " + pregunta);
-        System.out.println("IA2 responde: " + respuestaIA2);
 
+        // ----------------------------
+        // Mostrar todo por pantalla
+        // ----------------------------
+        System.out.println("IA1 pregunta1: " + pregunta1);
+        System.out.println("IA2 responde1: " + respuesta1IA2);
+        System.out.println("IA1 responde2: " + respuesta2IA1);
+        System.out.println("IA2 responde2: " + respuesta2IA2);
 
     }
 }
